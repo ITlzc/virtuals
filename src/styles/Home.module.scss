@@ -17,8 +17,8 @@
 // 卡片网格布局
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); // 自动调整列数
-    gap: 20px; // 卡片间距
+    grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); 
+    gap: 20px; 
 }
 
 // 单个卡片样式

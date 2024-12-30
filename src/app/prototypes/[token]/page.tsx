@@ -1,6 +1,6 @@
 "use client";
 import '@ant-design/v5-patch-for-react-19';
-import { Spin } from "antd";
+import { Spin, message } from "antd";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useRouter } from 'next/navigation'
 import { useGetTokensInfo, useGetHolders, useGetComments, usePostComments, useGetTradingHistoryList, useGetEthPrice } from '@/utils/api'
@@ -187,6 +187,15 @@ export default function Prototypes({ params }: Props) {
     if (tradeType === 'sell' && Number(amount) <= Number(tokenBalance?.formatted)) setAmount(amount)
   }
 
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(info.token);
+      message.success('Copied');
+    } catch (error) {
+      console.error('Copied error:', error);
+    }
+  };
+
   useEffect(() => {
     setAmount('');
   }, [tradeType])
@@ -253,7 +262,7 @@ export default function Prototypes({ params }: Props) {
             <div className={styles.tokenInfo}>
               <h1 className={styles.title}>{info.name}</h1>
               <p className={styles.contract}>
-                Contract: <span>{info.token}</span>
+                Contract: <span>{info.token}</span> <img src="/images/copy.png" alt="" onClick={()=> copyToClipboard()} />
               </p>
               {/* <div className={styles.actionButtons}>
                 <button className={styles.actionButton}>View Streaming Apply</button>
@@ -290,9 +299,9 @@ export default function Prototypes({ params }: Props) {
           <div className={styles.betweenSection}>
             <div className={styles.leftSection}>
               <div className={styles.tradingSection}>
-                <h2>Trading Chart</h2>
+                {/* <h2>Trading Chart</h2> */}
                 <div className={styles.chart}>
-                  <TradingViewChart symbol="WETHUSDC" />
+                  <TradingViewChart token={token} />
                 </div>
               </div>
 
@@ -379,7 +388,7 @@ export default function Prototypes({ params }: Props) {
                 </div>
                 <div className="w-full flex justify-center">
                   {
-                    isConnected ? <button className={styles.placeTradeBtn} disabled={isPending || amount === '' || Number(amount) === 0 || isTxLoading || isPendingApprove || isApproveLoading} onClick={() => handleBuy()}>{isPending || isTxLoading || isPendingApprove || isApproveLoading ? 'Confirming...' : 'Place Trade'}</button> : <ConnectButton />
+                    isConnected ? <button className={styles.placeTradeBtn} disabled={info.graduated === true || isPending || amount === '' || Number(amount) === 0 || isTxLoading || isPendingApprove || isApproveLoading} onClick={() => handleBuy()}>{isPending || isTxLoading || isPendingApprove || isApproveLoading ? 'Confirming...' : 'Place Trade'}</button> : <ConnectButton />
                   }
                 </div>
 

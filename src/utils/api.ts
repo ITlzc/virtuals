@@ -4,12 +4,14 @@ import { useQuery, useMutation, UseQueryResult, UseMutationResult } from '@tanst
 const BASE_URL = 'https://xjlxljoqbenbvslttrfu.supabase.co/functions/v1';
 
 const api = {
-    getTokensList: (page: number = 1, pageSize: number = 100) => axios.get(`${BASE_URL}/minibackend/api/v1/tokens?page=${page}&page_size=${pageSize}`),
+    getTokensList: (page: number = 1, pageSize: number = 500) => axios.get(`${BASE_URL}/minibackend/api/v1/tokens?page=${page}&page_size=${pageSize}`),
     getTokensInfo: (token: string) => axios.get(`${BASE_URL}/minibackend/api/v1/token?token=${token}`),
     getHolders: (token: string) => axios.get(`${BASE_URL}/minibackend/api/v1/holder?token=${token}`),
     getComments: (token: string) => axios.get(`${BASE_URL}/minibackend/api/v1/comment?token=${token}`),
     getTradingHistoryList: (token: string) => axios.get(`${BASE_URL}/minibackend/api/v1/trade?token=${token}`),
     getEthPrice: () => axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'),
+
+    getTradingViewData: (token: string) => axios.get(`https://xjlxljoqbenbvslttrfu.supabase.co/functions/v1/minibackend/api/v1/chart?token=${token}&start=0&end=${Math.floor(Date.now() / 1000)}&interval=60`),
 
     postComments: (params: any) => axios.post(`${BASE_URL}/minibackend/api/v1/comment`, params),
 };
@@ -37,6 +39,9 @@ export const useGetTradingHistoryList = (token: string): UseQueryResult<any, Err
 
 export const useGetEthPrice = (): UseQueryResult<any, Error> => {
     return useQuery({ queryKey: ['ethPrice'], queryFn: () => api.getEthPrice() });
+}
+export const useGetTradingViewData = (token: string): UseQueryResult<any, Error> => {
+    return useQuery({ queryKey: ['tradingViewData', token], queryFn: () => api.getTradingViewData(token) });
 }
 
 export const usePostComments = (onSuccessCallback: (data: any) => void): UseMutationResult<any, Error, any> => {

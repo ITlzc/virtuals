@@ -18,13 +18,16 @@ const urlRegex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)
 
 export default function Launch() {
     const router = useRouter()
+    const [hasProcessed, setHasProcessed] = useState(false);
+
     const { data: hash, isPending, error: txError, isSuccess, writeContract } = useWriteContract();
 
-    const { isLoading: isConfirming, isError: confirmedError, isSuccess: isConfirmed, error: confirmedErrorData } = useWaitForTransactionReceipt({
+    const { data: confirmedHash, isLoading: isConfirming, isError: confirmedError, isSuccess: isConfirmed, error: confirmedErrorData, isLoadingError, isPaused } = useWaitForTransactionReceipt({
         hash: hash,
         query: {
-            enabled: !!hash,
-        }
+            enabled: !!hash && !hasProcessed,
+        },
+        confirmations: 10, // 等待确认数
     });
 
 
@@ -102,8 +105,14 @@ export default function Launch() {
 
 
     const handleConfirm = async () => {
+        setHasProcessed(false); // 重置交易处理状态
         if (!isConnected) {
             message.warning("Please connect your wallet first")
+            return
+        }
+
+        if(purchaseAmount === "" || Number(purchaseAmount) <= 0.001){
+            message.warning("Purchase amount must be greater than fee")
             return
         }
 
@@ -124,13 +133,25 @@ export default function Launch() {
     }
 
     useEffect(() => {
+        if (isConfirmed || confirmedError) {
+            setHasProcessed(true); // 标记交易已处理
+          }
+        if(confirmedError && confirmedErrorData){
+            message.error(confirmedErrorData.name)
+            console.log("confirmedErrorData", confirmedErrorData)
+        }
         if (isConfirmed) {
             message.success("Create successful!");
             setTimeout(() => {
                 router.push('/')
             }, 2000);
         }
-    }, [isConfirmed])
+    }, [isConfirmed, confirmedError, confirmedErrorData])
+
+    useEffect(() => {
+        console.log("confirmedHash", confirmedHash)
+        console.log("confirmedError", confirmedError,confirmedErrorData)
+    }, [confirmedHash, confirmedError, confirmedErrorData,])
 
     return (
         // <Spin spinning={isConfirming || isPending} size='large'>
@@ -142,7 +163,7 @@ export default function Launch() {
 
             <div className={`main-content ${styles.content}`}>
                 <h1 className={styles.topText}>Launch your <span className={styles.highlight}>AI Agent/App</span></h1>
-    
+
 
                 {/* Form Section */}
                 <section className={styles.formSection}>
@@ -232,7 +253,7 @@ export default function Launch() {
 
                     <div className={styles.formGroup}>
                         <label>Initial Buy * <span>be the first person to buy your AI Agent/App</span></label>
-                        <input type="number" placeholder="Optional,Enter the amount" onChange={(e) => {
+                        <input type="number" placeholder="Enter the amount, Purchase amount must be greater than fee" onChange={(e) => {
                             // if (Number(e.target.value) <= 0.001) setPurchaseAmount('0.001')
                             setPurchaseAmount(e.target.value)
                         }} />
@@ -243,9 +264,9 @@ export default function Launch() {
                         <label>NFT Address *</label>
                         <input type="text" placeholder="Optional" value={nftAddress} onChange={(e) => setNftAddress(e.target.value)} onBlur={(e) => {
                             console.log(ethers.isAddress(e.target.value))
-                            if(ethers.isAddress(e.target.value)){
+                            if (ethers.isAddress(e.target.value)) {
                                 setNftAddress(e.target.value)
-                            }else{
+                            } else {
                                 message.warning('Please enter a valid NFT address')
                                 setNftAddress('')
                             }
@@ -253,7 +274,7 @@ export default function Launch() {
                         } />
                     </div>
 
-                    <button className={styles.submitButton} disabled={!ticker || !description || !purchaseAmount || !nftAddress || isPending} onClick={() => handleConfirm()}>{isPending ? 'Confirming...' : 'Create AI Agent'}</button>
+                    <button className={styles.submitButton} disabled={!ticker || !description || !purchaseAmount || !nftAddress || isConfirming || isPending} onClick={() => handleConfirm()}>{isPending || isConfirming ? 'Confirming...' : 'Create AI Agent'}</button>
 
                     {/* {isConfirming && <div>Waiting for confirmation...</div>}
                     {isConfirmed && <div>Transaction confirmed.</div>} */}
