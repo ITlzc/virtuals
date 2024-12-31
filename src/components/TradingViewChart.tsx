@@ -72,6 +72,16 @@ const TradingViewChart: React.FC<any> = ({ token }) => {
           type: "custom",
           formatter: (price: number) => price.toFixed(18), // 强制保留 18 位小数
         },
+        autoscaleInfoProvider: () => ({
+          priceRange: {
+            minValue: 0,
+            maxValue: Math.max(...data.map((item: any) => parseFloat(item.high))),
+          },
+          margins: {
+            above: 100,
+            below: 0,
+          },
+        }),
       });
       console.log(data)
       candleSeries.setData(data.map((item: any) => {
@@ -107,6 +117,7 @@ const TradingViewChart: React.FC<any> = ({ token }) => {
         time: item.time,
         value: parseFloat(item.volume),
       })));
+      // volumeSeries.setData(volumeData);
 
 
       return () => {
