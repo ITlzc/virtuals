@@ -237,7 +237,7 @@ export default function Prototypes({ params }: Props) {
   }, [isApproveSuccess, tradeType, amount, token, writeContract]);
 
 
-  if (isLoading || holdersLoading || commentsLoading || tradingHistoryListLoading || ethPriceLoading) return <Spin spinning={true} size='large' fullscreen />
+  if (isLoading) return <Spin spinning={true} size='large' fullscreen />
 
   const info = data?.data?.data;
   const holdersList = holders?.data?.data || [];
@@ -283,12 +283,12 @@ export default function Prototypes({ params }: Props) {
             </div>
             <div className={styles.infoCard}>
               <p>Market Cap</p>
-              <h3>${formatNumber(Number(formatEther(info.market_cap as any)) * ethPrice?.data.ethereum.usd)}</h3>
+              <h3>${formatNumber(Number(formatEther(info.market_cap as any)) * ethPrice?.data.price)}</h3>
             </div>
             <div className={styles.infoCard}>
               <p>ETH Liquidity</p>
               {/* * eth price */}
-              <h3>${formatNumber(Number(formatEther(info.reserve1 as any)) * ethPrice?.data.ethereum.usd)}</h3>
+              <h3>${formatNumber(Number(formatEther(info.reserve1 as any)) * ethPrice?.data.price)}</h3>
             </div>
             <div className={styles.infoCard}>
               <p>24h Volume</p>

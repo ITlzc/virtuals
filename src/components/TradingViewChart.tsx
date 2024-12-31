@@ -7,17 +7,12 @@ import {
   ISeriesApi,
   ColorType,
   CrosshairMode,
-  HistogramData,
-  CandlestickData,
 } from 'lightweight-charts';
 
 import { useGetTradingViewData } from '@/utils/api'
-import moment from 'moment';
-import { priceData } from './priceData';
-import { volumeData } from './volumeData';
 
 
-const TradingViewChart: React.FC<any> = ({token}) => {
+const TradingViewChart: React.FC<any> = ({ token }) => {
   console.log(token)
   const { data: tradingViewData, isLoading, refetch } = useGetTradingViewData(token);
 
@@ -25,22 +20,12 @@ const TradingViewChart: React.FC<any> = ({token}) => {
 
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
     if (!tradingViewData) return;
     const data = tradingViewData?.data?.data
 
-    // const data = resData.map((item: any) => {
-    //   const { time, ...rest } = item;
-    //   return {
-    //     time: time,
-    //     ...Object.fromEntries(Object.entries(rest).map(([key, value]: any) => [key, parseFloat(value)])),
-    //   };
-    // });
-
-    console.log(data)
     if (data && data.length) {
       chartRef.current = createChart(chartContainerRef.current, {
         width: chartContainerRef.current.clientWidth,
@@ -58,13 +43,18 @@ const TradingViewChart: React.FC<any> = ({token}) => {
           },
         },
         crosshair: {
-          mode: CrosshairMode.Normal,
+          mode: CrosshairMode.Magnet,
         },
         timeScale: {
           borderColor: '#485c7b',
           timeVisible: true,
-          secondsVisible: false, 
+          secondsVisible: false,
+          // tickMarkFormatter: (time: number) => moment(time * 1000).format('HH:mm'),
         },
+
+        localization: {
+          locale: 'en-US'
+        }
       });
 
       const chart = chartRef.current;
@@ -93,7 +83,6 @@ const TradingViewChart: React.FC<any> = ({token}) => {
           close: parseFloat(item.close),
         }
       }));
-      // candleSeries.setData(priceData);
 
       // Add volume histogram series 交易量可以作为柱状图显示在价格图表的下方。
       const volumeSeries = chart.addHistogramSeries({
@@ -108,7 +97,7 @@ const TradingViewChart: React.FC<any> = ({token}) => {
             maxValue: Math.max(...data.map((item: any) => parseFloat(item.volume))),
           },
           margins: {
-            above: 110,
+            above: 100,
             below: 0,
           },
         }),
@@ -118,7 +107,7 @@ const TradingViewChart: React.FC<any> = ({token}) => {
         time: item.time,
         value: parseFloat(item.volume),
       })));
-      // volumeSeries.setData(volumeData);
+
 
       return () => {
         chart.remove();

@@ -60,7 +60,7 @@ function Page() {
                         </div>
                         <div className="flex flex-col text-left">
                           <span className="text-[#aaa]">Market Cap:</span>
-                          <span className="text-white">${formatNumber(Number(formatEther(card.market_cap as any)) * ethPrice?.data.ethereum.usd)}</span>
+                          <span className="text-white">${formatNumber(Number(formatEther(card.market_cap as any)) * ethPrice?.data.price)}</span>
                         </div>
                       </div>
                       <div className="flex">

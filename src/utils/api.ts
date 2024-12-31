@@ -9,7 +9,7 @@ const api = {
     getHolders: (token: string) => axios.get(`${BASE_URL}/minibackend/api/v1/holder?token=${token}`),
     getComments: (token: string) => axios.get(`${BASE_URL}/minibackend/api/v1/comment?token=${token}`),
     getTradingHistoryList: (token: string) => axios.get(`${BASE_URL}/minibackend/api/v1/trade?token=${token}`),
-    getEthPrice: () => axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'),
+    getEthPrice: () => axios.get('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT'),
 
     getTradingViewData: (token: string) => axios.get(`https://xjlxljoqbenbvslttrfu.supabase.co/functions/v1/minibackend/api/v1/chart?token=${token}&start=0&end=${Math.floor(Date.now() / 1000)}&interval=60`),
 
